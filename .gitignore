@@ -1,0 +1,11 @@
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+.vs/
+.vscode/
+*.user
+*.suo
+jellyfin-categorizer-config.json
+*.nupkg
