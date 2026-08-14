@@ -7,41 +7,53 @@ Automatically groups your movies and TV shows into browsable rows like "Continue
 ## Features
 
 - **9 dynamic category types** — generated from library metadata, not hard-coded
-  - Continue Watching (active series with episodes in progress)
-  - Top Picks (high user rating or high IMDb/TMDB score)
-  - Trending (recently added or recently played)
-  - New Releases (released in the last 90 days)
-  - Award-Winning (contains Oscar/Golden Globe/etc. tags)
-  - Critically Acclaimed (high review scores)
-  - Watch It Again (high-rated movies you've already seen)
-  - Completed Series (series with all episodes watched)
-  - Beloved [Genre] (genre-based rows, e.g. "Beloved Sci-Fi")
+  - **Continue Watching** — series and episodes you've started but not finished
+  - **Top Picks** — highest-rated items in your library
+  - **Trending** — items recently added (last 30 days)
+  - **New Releases** — items released in the last 90 days
+  - **Award-Winning** — items tagged with awards (Oscar, Golden Globe, etc.)
+  - **Critically Acclaimed** — high community and critic ratings
+  - **Watch It Again** — highly-rated items you've already played
+  - **Completed Series** — series marked as "Ended" with good ratings
+  - **Beloved [Genre]** — top-rated items in a specific genre
 - **REST API** — query categories and items via HTTP
 - **Web config UI** — adjust thresholds, toggle category types, customize rules
 - **No external dependencies** — works entirely with your existing Jellyfin metadata
 
 ## Installation
 
-1. Build the plugin:
+### Via Jellyfin GitHub Repository (Recommended)
+
+1. Open Jellyfin Dashboard
+2. Navigate to **Plugins → Repositories**
+3. Add the repository URL: `https://github.com/jacobcrny/jellyfin-categorizer`
+4. Find **Jellyfin Categorizer** in the plugins list and install
+5. Restart Jellyfin
+
+### Manual Installation
+
+1. Clone or download this repository
+2. Build the release DLL:
    ```bash
    cd src/Jellyfin.Categorizer
    dotnet build -c Release
    ```
-2. Copy the generated `.dll` into your Jellyfin plugins directory:
+3. Copy the generated DLL into your Jellyfin plugins directory:
    ```bash
-   cp bin/Release/net8.0/Jellyfin.Categorizer.dll \
+   cp bin/Release/net9.0/Jellyfin.Categorizer.dll \
       /usr/lib/jellyfin-server/plugins/
    ```
-3. Restart Jellyfin. The plugin will load automatically.
+4. Restart Jellyfin. The plugin will load automatically.
 
 ## Configuration
 
 After installing, go to **Dashboard → Plugins → Jellyfin Categorizer** to:
 
 - Enable or disable individual category types
-- Set rating thresholds for "Top Picks" and "Critically Acclaimed"
+- Set rating thresholds for "Top Picks", "Critically Acclaimed", and other categories
 - Define the lookback window for "Trending" and "New Releases"
 - Customize genre-specific row titles
+- Configure the maximum number of items per category
 
 ## API
 
@@ -70,33 +82,38 @@ dotnet build -c Release
 
 The compiled `.dll` is ready to drop into the Jellyfin plugins directory.
 
-## Development
+## Requirements
 
-### Project structure
+- **Jellyfin 10.11.x** (targeted and tested)
+- **.NET 9.0 SDK** for building from source
+
+## Project Structure
 
 ```
 src/Jellyfin.Categorizer/
-├── Jellyfin.Categorizer.csproj   # .NET 8 project
+├── Jellyfin.Categorizer.csproj   # .NET 9 project with Jellyfin 10.11.x NuGet refs
 ├── Plugin.cs                      # Plugin manifest
-├── Plugins/
-│   ├── CategorizerPlugin.cs       # Main entry point
-│   └── CategorizerConfigurationPlugin.cs  # Config web UI
+├── PluginServiceRegistrator.cs    # DI registration
+├── Api/
+│   └── CategoriesController.cs    # REST endpoints
+├── Configuration/
+│   └── configPage.html            # Web config UI
+├── Data/
+│   ├── ConfigurationService.cs    # JSON config persistence
+│   └── PluginConfiguration.cs     # Config data model
 ├── Models/
 │   ├── Category.cs                # Category data model
 │   └── CategoryDefinition.cs      # Sorting rules & types
-├── Services/
-│   └── CategoryService.cs         # Dynamic categorization logic
-├── Api/
-│   └── CategoriesController.cs    # REST endpoints
-└── Data/
-    └── ConfigurationService.cs    # JSON config persistence
+└── Services/
+    └── CategoryService.cs         # Dynamic categorization logic
 ```
 
-### Adding a new category type
+## Adding a New Category Type
 
 1. Add the new type to `CategoryType` enum in `CategoryDefinition.cs`
-2. Add sorting logic to `CategoryService.cs`
-3. Update the `GetCategories()` method to register the new type
+2. Add sorting logic as a `GetXxx` method in `CategoryService.cs`
+3. Add the switch case in `GetItemsForCategory()`
+4. Update `PluginConfiguration.cs` with any new config fields
 
 ## License
 
