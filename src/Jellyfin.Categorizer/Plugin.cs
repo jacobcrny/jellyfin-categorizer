@@ -79,10 +79,10 @@ public class Plugin
     public ILibraryManager LibraryManager => _libraryManager;
 
     /// <inheritdoc />
-    public override string Name => "Jellyfin Categorizer";
+    public override string Name => PluginManifest.Categorizer.Name;
 
     /// <inheritdoc />
-    public override Guid Id => Guid.Parse("a1b2c3d4-e5f6-7890-abcd-ef1234567890");
+    public override Guid Id => PluginManifest.Categorizer.Id;
 
     /// <inheritdoc />
     public IEnumerable<PluginPageInfo> GetPages()
