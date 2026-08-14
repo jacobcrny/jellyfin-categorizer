@@ -1,83 +1,64 @@
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Threading.Tasks;
+using System.Text.Json;
+using Jellyfin.Categorizer.Data;
 using Jellyfin.Categorizer.Models;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 
-namespace Jellyfin.Categorizer.Data
+namespace Jellyfin.Categorizer.Data;
+
+/// <summary>
+/// Persists plugin configuration to JSON.
+/// </summary>
+public class ConfigurationService
 {
-    /// <summary>
-    /// Configuration service for plugin settings persistence.
-    /// </summary>
-    public interface IConfigurationService
+    private const string FileName = "config.json";
+    private readonly ILogger<ConfigurationService> _logger;
+
+    public ConfigurationService(ILogger<ConfigurationService> logger)
     {
-        Task<PluginConfiguration> GetConfigurationAsync();
-        Task SetConfigurationAsync(PluginConfiguration config);
+        _logger = logger;
     }
 
-    /// <summary>
-    /// File-based configuration service.
-    /// </summary>
-    public class FileConfigurationService : IConfigurationService
+    public PluginConfiguration Load(string pluginDirectory)
     {
-        private readonly string _configPath;
-        private readonly ILogger<FileConfigurationService> _logger;
-        private PluginConfiguration? _cachedConfig;
-
-        public FileConfigurationService(ILogger<FileConfigurationService>? logger = null)
+        var filePath = Path.Join(pluginDirectory, FileName);
+        try
         {
-            _logger = logger ?? NullLogger<FileConfigurationService>.Instance;
-            
-            // Default config path in Jellyfin's data directory
-            var dataDir = Environment.GetEnvironmentVariable("JELLYFIN_DATA_DIR") 
-                ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Jellyfin", "Configuration");
-            
-            _configPath = Path.Combine(dataDir, "jellyfin-categorizer-config.json");
+            if (File.Exists(filePath))
+            {
+                var json = File.ReadAllText(filePath);
+                var config = JsonSerializer.Deserialize<PluginConfiguration>(json);
+                return config ?? new PluginConfiguration();
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Error loading configuration from {FilePath}. Using defaults.", filePath);
         }
 
-        public async Task<PluginConfiguration> GetConfigurationAsync()
+        return new PluginConfiguration();
+    }
+
+    public void Save(string pluginDirectory, PluginConfiguration config)
+    {
+        try
         {
-            if (_cachedConfig != null)
-                return _cachedConfig;
-
-            try
+            var directory = Path.GetDirectoryName(pluginDirectory);
+            if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
             {
-                if (File.Exists(_configPath))
-                {
-                    var json = await File.ReadAllTextAsync(_configPath);
-                    _cachedConfig = System.Text.Json.JsonSerializer.Deserialize<PluginConfiguration>(json) 
-                        ?? new PluginConfiguration();
-                    return _cachedConfig;
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error reading configuration from {Path}", _configPath);
+                Directory.CreateDirectory(directory);
             }
 
-            // Return defaults
-            return new PluginConfiguration();
+            var filePath = Path.Join(pluginDirectory, FileName);
+            var json = JsonSerializer.Serialize(config, new JsonSerializerOptions
+            {
+                WriteIndented = true
+            });
+            File.WriteAllText(filePath, json);
         }
-
-        public async Task SetConfigurationAsync(PluginConfiguration config)
+        catch (Exception ex)
         {
-            try
-            {
-                var json = System.Text.Json.JsonSerializer.Serialize(config, new System.Text.Json.JsonSerializerOptions 
-                { 
-                    WriteIndented = true 
-                });
-                await File.WriteAllTextAsync(_configPath, json);
-                _cachedConfig = config;
-                _logger.LogInformation("Configuration saved to {Path}", _configPath);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error writing configuration to {Path}", _configPath);
-                throw;
-            }
+            _logger.LogError(ex, "Error saving configuration to {Directory}", pluginDirectory);
         }
     }
 }

@@ -1,47 +1,95 @@
-using System;
 using System.Collections.Generic;
-using MediaBrowser.Controller.Entities;
 
-namespace Jellyfin.Categorizer.Models
+namespace Jellyfin.Categorizer.Models;
+
+/// <summary>
+/// A single category row returned by the API.
+/// </summary>
+public class Category
 {
     /// <summary>
-    /// Represents a Netflix-style category with items.
+    /// Gets or sets the category identifier.
     /// </summary>
-    public class Category
-    {
-        /// <summary>Unique identifier for this category.</summary>
-        public string Id { get; set; } = string.Empty;
+    public string Id { get; set; } = string.Empty;
 
-        /// <summary>Display name shown to users.</summary>
-        public string Name { get; set; } = string.Empty;
+    /// <summary>
+    /// Gets or sets the display name.
+    /// </summary>
+    public string DisplayName { get; set; } = string.Empty;
 
-        /// <summary>Short description of what this category contains.</summary>
-        public string? Description { get; set; }
+    /// <summary>
+    /// Gets or sets the category type.
+    /// </summary>
+    public string CategoryType { get; set; } = string.Empty;
 
-        /// <summary>Items that belong to this category.</summary>
-        public List<BaseItem> Items { get; set; } = new();
+    /// <summary>
+    /// Gets or sets the items in this category.
+    /// </summary>
+    public List<CategoryItem> Items { get; set; } = new();
 
-        /// <summary>Total count (may be more than Items if pagination is needed).</summary>
-        public int TotalItemCount { get; set; }
+    /// <summary>
+    /// Gets or sets the item count.
+    /// </summary>
+    public int ItemCount => Items.Count;
+}
 
-        /// <summary>Order in which this category appears (lower = first).</summary>
-        public int SortOrder { get; set; } = 0;
+/// <summary>
+/// A single media item within a category.
+/// </summary>
+public class CategoryItem
+{
+    /// <summary>
+    /// Gets or sets the item ID.
+    /// </summary>
+    public string Id { get; set; } = string.Empty;
 
-        /// <summary>Category type for grouping.</summary>
-        public CategoryType Type { get; set; } = CategoryType.Metadata;
+    /// <summary>
+    /// Gets or sets the item name.
+    /// </summary>
+    public string Name { get; set; } = string.Empty;
 
-        /// <summary>Whether this category was auto-generated or user-defined.</summary>
-        public bool IsDynamic { get; set; } = true;
-    }
+    /// <summary>
+    /// Gets or sets the item type (Movie, Series, etc.).
+    /// </summary>
+    public string Type { get; set; } = string.Empty;
 
-    /// <summary>Type of category generation.</summary>
-    public enum CategoryType
-    {
-        /// <summary>Generated from metadata (genres, ratings, etc.).</summary>
-        Metadata,
-        /// <summary>Generated from user behavior (continue watching, top 10, etc.).</summary>
-        Behavioral,
-        /// <summary>User-defined custom category.</summary>
-        UserDefined
-    }
+    /// <summary>
+    /// Gets or sets the premiere date.
+    /// </summary>
+    public string? PremiereDate { get; set; }
+
+    /// <summary>
+    /// Gets or sets the community rating.
+    /// </summary>
+    public double? Rating { get; set; }
+
+    /// <summary>
+    /// Gets or sets the number of likes.
+    /// </summary>
+    public int LikeCount { get; set; }
+
+    /// <summary>
+    /// Gets or sets the play count.
+    /// </summary>
+    public int PlayCount { get; set; }
+
+    /// <summary>
+    /// Gets or sets the percentage played.
+    /// </summary>
+    public double? PlayedPercentage { get; set; }
+
+    /// <summary>
+    /// Gets or sets the genres.
+    /// </summary>
+    public List<string> Genres { get; set; } = new();
+
+    /// <summary>
+    /// Gets or sets the IMDB provider ID if available.
+    /// </summary>
+    public string? ImdbId { get; set; }
+
+    /// <summary>
+    /// Gets or sets the TMDB provider ID if available.
+    /// </summary>
+    public string? TmdbId { get; set; }
 }

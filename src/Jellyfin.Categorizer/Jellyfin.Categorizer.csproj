@@ -1,56 +1,22 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <TargetFramework>net9.0</TargetFramework>
+    <RootNamespace>Jellyfin.Categorizer</RootNamespace>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <LangVersion>12</LangVersion>
-    <RootNamespace>Jellyfin.Categorizer</RootNamespace>
-    <AssemblyName>Jellyfin.Categorizer</AssemblyName>
-    <Version>0.1.0</Version>
-    <PackageId>Jellyfin.Categorizer</PackageId>
-    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
-    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
-    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
-    <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
 
-  <!-- Jellyfin Server SDK reference for plugin development -->
   <ItemGroup>
-    <Reference Include="MediaBrowser.Common">
-      <HintPath>$(JellyfinDir)MediaBrowser.Common.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="MediaBrowser.Controller">
-      <HintPath>$(JellyfinDir)MediaBrowser.Controller.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="MediaBrowser.Model">
-      <HintPath>$(JellyfinDir)MediaBrowser.Model.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Emby.Naming">
-      <HintPath>$(JellyfinDir)Emby.Naming.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
+    <PackageReference Include="Jellyfin.Common" Version="10.11.*" />
+    <PackageReference Include="Jellyfin.Controller" Version="10.11.*" />
+    <PackageReference Include="Jellyfin.Model" Version="10.11.*" />
   </ItemGroup>
 
-  <!-- NuGet packages compatible with Jellyfin's .NET 8 runtime -->
   <ItemGroup>
-    <PackageReference Include="Jellyfin.Common" Version="10.10.*" Condition="'$(JellyfinDir)' == ''" />
-    <PackageReference Include="Jellyfin.Controller" Version="10.10.*" Condition="'$(JellyfinDir)' == ''" />
-    <PackageReference Include="Jellyfin.Model" Version="10.10.*" Condition="'$(JellyfinDir)' == ''" />
-    <PackageReference Include="Serilog" Version="4.1.*" />
+    <EmbeddedResource Include="Configuration\configPage.html" />
   </ItemGroup>
-
-  <Target Name="JellyfinCategorizerBuild" AfterTargets="Build" Condition="'$(JellyfinDir)' != ''">
-    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(JellyfinDir)plugins\Jellyfin.Categorizer" />
-  </Target>
 
 </Project>

@@ -1,72 +1,88 @@
-using System;
-using System.Collections.Generic;
+namespace Jellyfin.Categorizer.Models;
 
-namespace Jellyfin.Categorizer.Models
+/// <summary>
+/// Available category types that determine sorting logic.
+/// </summary>
+public enum CategoryType
 {
     /// <summary>
-    /// Definition of a Netflix-style category with its sorting rules.
+    /// Items the user has started but not finished.
     /// </summary>
-    public class CategoryDefinition
-    {
-        public string Id { get; set; } = string.Empty;
-        public string Name { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public CategoryType Type { get; set; } = CategoryType.Metadata;
-        public int SortOrder { get; set; } = 0;
-        public bool IsDynamic { get; set; } = true;
-        public CategoryRule? Rule { get; set; }
-    }
+    ContinueWatching,
 
     /// <summary>
-    /// A single rule that determines what items belong to a category.
+    /// Highest rated or most liked items.
     /// </summary>
-    public class CategoryRule
-    {
-        /// <summary>Rule type: genre, rating, year, user_score, etc.</summary>
-        public RuleType Type { get; set; }
+    TopPicks,
 
-        /// <summary>Value to match (e.g., "Action", "9.0", "2023").</summary>
-        public string? Value { get; set; }
+    /// <summary>
+    /// Recently active or popular items.
+    /// </summary>
+    Trending,
 
-        /// <summary>Multiple values allowed (e.g., multiple genres).</summary>
-        public List<string>? Values { get; set; }
+    /// <summary>
+    /// Items released within the last 90 days.
+    /// </summary>
+    NewReleases,
 
-        /// <summary>Comparator: Equals, Contains, GreaterThan, LessThan, In.</summary>
-        public ComparisonType Comparison { get; set; } = ComparisonType.Contains;
+    /// <summary>
+    /// Items with awards or high critic scores.
+    /// </summary>
+    AwardWinning,
 
-        /// <summary>Optional negation: true means items that DON'T match.</summary>
-        public bool Negate { get; set; } = false;
+    /// <summary>
+    /// Critically acclaimed content (high IMDB/TMDB ratings).
+    /// </summary>
+    CriticallyAcclaimed,
 
-        /// <summary>Minimum number of items required in the category.</summary>
-        public int MinItemCount { get; set; } = 1;
-    }
+    /// <summary>
+    /// Highly rated completed items the user has finished.
+    /// </summary>
+    WatchItAgain,
 
-    public enum RuleType
-    {
-        Genre,
-        Year,
-        Rating,
-        UserScore,
-        PlayCount,
-        LastPlayed,
-        Runtime,
-        ContentRating,
-        Status,
-        CustomTag,
-        All,
-        None,
-        And,
-        Or
-    }
+    /// <summary>
+    /// TV series that have ended.
+    /// </summary>
+    CompletedSeries,
 
-    public enum ComparisonType
-    {
-        Equals,
-        Contains,
-        GreaterThan,
-        LessThan,
-        In,
-        NotIn,
-        Between
-    }
+    /// <summary>
+    /// Beloved items within a specific genre.
+    /// </summary>
+    BelovedGenre
+}
+
+/// <summary>
+/// Configuration for a single category definition.
+/// </summary>
+public class CategoryDefinition
+{
+    /// <summary>
+    /// Gets or sets the category type.
+    /// </summary>
+    public CategoryType Type { get; set; }
+
+    /// <summary>
+    /// Gets or sets the display name shown in the UI.
+    /// </summary>
+    public string DisplayName { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the minimum number of items required to display the row.
+    /// </summary>
+    public int MinItems { get; set; } = 9;
+
+    /// <summary>
+    /// Gets or sets the maximum number of items in the row.
+    /// </summary>
+    public int MaxItems { get; set; } = 18;
+
+    /// <summary>
+    /// Gets or sets whether this category is enabled.
+    /// </summary>
+    public bool Enabled { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets the genre filter for BelovedGenre type.
+    /// </summary>
+    public string? GenreFilter { get; set; }
 }

@@ -1,0 +1,113 @@
+<div class="formContainer categorizer-config">
+    <h1>Jellyfin Categorizer</h1>
+    <p>Netflix-style dynamic category sorting for your library.</p>
+
+    <div class="verticalSection">
+        <h2 class="sectionTitle">Category Settings</h2>
+
+        <div class="inputContainer">
+            <label class="label">Maximum Items Per Row</label>
+            <input id="maxItems" type="number" min="1" max="50" class="emby-input" />
+            <p class="helpText">Maximum number of items shown per category row.</p>
+        </div>
+
+        <fieldset class="verticalSection-extrabottompadding">
+            <legend>Enabled Categories</legend>
+            <div id="categoryToggles">
+                <label class="checkboxContainer">
+                    <input type="checkbox" data-category="ContinueWatching" />
+                    <span>Continue Watching</span>
+                </label>
+                <label class="checkboxContainer">
+                    <input type="checkbox" data-category="TopPicks" />
+                    <span>Top Picks</span>
+                </label>
+                <label class="checkboxContainer">
+                    <input type="checkbox" data-category="Trending" />
+                    <span>Trending</span>
+                </label>
+                <label class="checkboxContainer">
+                    <input type="checkbox" data-category="NewReleases" />
+                    <span>New Releases</span>
+                </label>
+                <label class="checkboxContainer">
+                    <input type="checkbox" data-category="AwardWinning" />
+                    <span>Award-Winning</span>
+                </label>
+                <label class="checkboxContainer">
+                    <input type="checkbox" data-category="CriticallyAcclaimed" />
+                    <span>Critically Acclaimed</span>
+                </label>
+                <label class="checkboxContainer">
+                    <input type="checkbox" data-category="WatchItAgain" />
+                    <span>Watch It Again</span>
+                </label>
+                <label class="checkboxContainer">
+                    <input type="checkbox" data-category="CompletedSeries" />
+                    <span>Completed Series</span>
+                </label>
+                <label class="checkboxContainer">
+                    <input type="checkbox" data-category="BelovedGenre" />
+                    <span>Beloved Genre</span>
+                </label>
+            </div>
+        </fieldset>
+
+        <div class="inputContainer">
+            <label class="label">Genre Filter (Beloved Genre)</label>
+            <input id="genreFilter" type="text" class="emby-input" />
+            <p class="helpText">Genre to filter for the "Beloved Genre" category (e.g. Sci-Fi, Action).</p>
+        </div>
+
+        <button is="emby-button" type="button" id="saveButton" class="raised button-submit block">
+            <span>Save</span>
+        </button>
+    </div>
+
+    <script>
+        var configPage = 'categorizerConfigPage';
+
+        document.addEventListener('viewshow', function (e) {
+            var view = e.detail;
+            if (view.id === configPage) {
+                ApiClient.getPluginConfiguration('A8B3F7E2-4D5C-4E9A-B1F6-7C8D9E0F1A2B').then(function (config) {
+                    document.getElementById('maxItems').value = config.DefaultMaxItems || 18;
+                    document.getElementById('genreFilter').value = config.Categories?.find(c => c.Type === 'BelovedGenre')?.GenreFilter || '';
+
+                    if (config.Categories) {
+                        document.querySelectorAll('#categoryToggles input[type="checkbox"]').forEach(function (cb) {
+                            var def = config.Categories.find(function (c) { return c.Type === cb.dataset.category; });
+                            cb.checked = def ? def.Enabled : true;
+                        });
+                    }
+                });
+            }
+        });
+
+        document.getElementById('saveButton').addEventListener('click', function () {
+            ApiClient.getPluginConfiguration('A8B3F7E2-4D5C-4E9A-B1F6-7C8D9E0F1A2B').then(function (config) {
+                config.DefaultMaxItems = parseInt(document.getElementById('maxItems').value) || 18;
+                config.Categories = config.Categories || [];
+
+                var genreFilter = document.getElementById('genreFilter').value;
+                var bgDef = config.Categories.find(function (c) { return c.Type === 'BelovedGenre'; });
+                if (bgDef) {
+                    bgDef.GenreFilter = genreFilter;
+                } else {
+                    config.Categories.push({ Type: 'BelovedGenre', Enabled: true, GenreFilter: genreFilter });
+                }
+
+                document.querySelectorAll('#categoryToggles input[type="checkbox"]').forEach(function (cb) {
+                    var existing = config.Categories.find(function (c) { return c.Type === cb.dataset.category; });
+                    if (existing) {
+                        existing.Enabled = cb.checked;
+                    }
+                });
+
+                ApiClient.updatePluginConfiguration('A8B3F7E2-4D5C-4E9A-B1F6-7C8D9E0F1A2B', config).then(function () {
+                    Dashboard.notify({ message: 'Settings saved successfully' });
+                });
+            });
+        });
+    </script>
+</div>

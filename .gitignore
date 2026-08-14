@@ -9,3 +9,5 @@ obj/
 *.suo
 jellyfin-categorizer-config.json
 *.nupkg
+jellyfin-dlls/
+jellyfin-refs/
