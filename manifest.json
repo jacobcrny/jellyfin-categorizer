@@ -1,15 +1,19 @@
 {
-  "category": "",
-  "changelog": "",
-  "description": "Netflix-style dynamic category sorting for Jellyfin libraries.",
-  "guid": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
   "name": "Jellyfin.Categorizer",
+  "description": "Netflix-style dynamic category sorting for Jellyfin libraries.",
   "overview": "Automatically groups your movies and TV shows into browsable rows like \"Continue Watching\", \"Top Picks\", \"Trending Now\", and more.",
   "owner": "jacobcrny",
-  "targetAbi": "10.11.0.0",
-  "timestamp": "2026-08-14T00:00:00Z",
-  "version": "1.0.0",
-  "status": 0,
-  "autoUpdate": true,
-  "assemblies": ["Jellyfin.Categorizer.dll"]
+  "category": "Organization",
+  "guid": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "versions": [
+    {
+      "version": "1.0.0",
+      "changelog": "Initial release.",
+      "targetAbi": "10.11.0.0",
+      "sourceUrl": "https://github.com/jacobcrny/jellyfin-categorizer/releases/download/1.0.0/Jellyfin.Categorizer.dll",
+      "timestamp": "2026-08-14T00:00:00Z",
+      "repositoryName": "jellyfin-categorizer",
+      "repositoryUrl": "https://github.com/jacobcrny/jellyfin-categorizer"
+    }
+  ]
 }
